@@ -7,6 +7,9 @@ from fastapi.staticfiles import StaticFiles
 import shutil
 from typing import Optional
 from pdf2image import convert_from_path
+import fitz  # PyMuPDF
+from PIL import Image
+import io
 
 app = FastAPI()
 
@@ -40,6 +43,78 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+def pdf_to_images(pdf_path: str):
+    """
+    Convert PDF pages to JPEG images and run YOLO on each page.
+    """
+    try:
+        pdf_output_dir = OUTPUT_DIR / "pdf_pages"
+        pdf_output_dir.mkdir(exist_ok=True)
+        
+        doc = fitz.open(pdf_path)
+        print(f"📄 Processing PDF with {len(doc)} pages")
+
+        for i, page in enumerate(doc):
+            mat = fitz.Matrix(2, 2)  # upscale for better resolution
+            pix = page.get_pixmap(matrix=mat)
+            img_path = pdf_output_dir / f"page_{i+1}.jpg"
+            pix.save(img_path)
+            print(f"✅ Saved page {i+1} -> {img_path}")
+
+            # Run YOLO on each page
+            MODEL.predict(
+                source=str(img_path),
+                conf=0.10,
+                iou=0.20,
+                save=True,
+                save_txt=True,
+                save_conf=True,
+                project=OUTPUT_DIR,
+                name="run",
+                exist_ok=True,
+                hide_labels=True
+            )
+
+        doc.close()
+        print("🚀 PDF processing completed.")
+        return True
+
+    except Exception as e:
+        print(f"❌ Error converting PDF to images: {e}")
+        raise
+
+
+def convert_dwf_to_pdf(dwf_file_path):
+    """Convert DWF to PDF using ConvertAPI"""
+    try:
+        import convertapi
+        convertapi.api_credentials = 'kBggW5Zoyhe5rr6azwlqnswDfIhoilOv'
+        # convertapi.api_credentials = 'kBggW5Zoyhe5rr6azwlqnswDfIhoilOv'
+        print(f"📐 Converting DWF file: {dwf_file_path}")
+        
+        dwf_file_path = os.path.abspath(dwf_file_path)
+        output_dir = os.path.dirname(dwf_file_path)
+        if not output_dir:
+            output_dir = os.getcwd()
+        
+        result = convertapi.convert('pdf', {'File': dwf_file_path}, from_format='dwf')
+        saved_files = result.save_files(output_dir)
+        
+        if saved_files and len(saved_files) > 0:
+            pdf_path = saved_files[0]
+            print(f"✅ DWF successfully converted to PDF: {pdf_path}")
+            return pdf_path
+        else:
+            raise Exception("ConvertAPI did not return any files")
+
+    except Exception as e:
+        import traceback
+        print(f"🚫 DWF to PDF conversion failed: {e}")
+        print(traceback.format_exc())
+        raise Exception(f"DWF to PDF conversion failed: {str(e)}")
+
+
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     global last_uploaded_file
@@ -60,46 +135,6 @@ async def upload_file(file: UploadFile = File(...)):
     return {"status": "Complete", "message": "File uploaded successfully", "filename": file.filename}
 
 
-# @app.get("/Processings")
-# def processing():
-#     global last_uploaded_file
-#     if not last_uploaded_file:
-#         print("No file uploaded yet")
-#         return {"error": "No file uploaded yet"}
-
-#     print("Processing file:", last_uploaded_file['filename'])
-
-#     ext = last_uploaded_file["ext"]
-#     path = last_uploaded_file["path"]
-
-#     # Example of format handling
-#     if ext in [".jpg", ".png"]:
-#         print("🖼️ Image detected, running detection directly...")
-
-#     elif ext == ".pdf":
-#         print("📄 Converting PDF to DXF... (placeholder for your logic)")
-#         pages = convert_from_path(path)
-#         for i, page in enumerate(pages):
-#             page.save(f'page_{i}.jpg', 'JPEG')
-
-#     elif ext == ".dwg":
-#         print("📐 Rendering DWG to image... (placeholder for your logic)")
-
-#     print("🚀 Running detection...")
-#     MODEL.predict(
-#         source=path,
-#         conf=0.10,
-#         iou=0.20,
-#         save=True,
-#         save_txt=True,
-#         save_conf=True,
-#         project=OUTPUT_DIR,
-#         name='run',
-#         show_labels=True,
-#         show_conf=True,
-#         line_width=2,
-#     )
-#     return {"status": "completed", "filename": last_uploaded_file["filename"]}
 
 @app.get("/Processings")
 def processing():
@@ -117,32 +152,7 @@ def processing():
     # =============== PDF HANDLING ===============
     if ext == ".pdf":
         print("📄 PDF detected — converting to images...")
-        pdf_output_dir = OUTPUT_DIR / "pdf_pages"
-        pdf_output_dir.mkdir(exist_ok=True)
-
-        pages = convert_from_path(path, dpi=200)
-        page_paths = []
-
-        for i, page in enumerate(pages):
-            img_path = pdf_output_dir / f"page_{i+1}.jpg"
-            page.save(img_path, "JPEG")
-            page_paths.append(img_path)
-            print(f"🖼️ Saved PDF page {i+1} -> {img_path}")
-
-        # Run YOLO on each page
-        for img_path in page_paths:
-            MODEL.predict(
-                source=str(img_path),
-                conf=0.10,
-                iou=0.20,
-                save=True,
-                save_txt=True,
-                save_conf=True,
-                project=OUTPUT_DIR,
-                name="run",
-                exist_ok=True,
-                hide_labels=True
-            )
+        pdf_to_images(path)
 
     # =============== IMAGE HANDLING ===============
     elif ext in [".jpg", ".jpeg", ".png"]:
@@ -161,11 +171,20 @@ def processing():
         )
 
     # =============== DWG HANDLING (future) ===============
-    elif ext == ".dwg":
-        print("📐 DWG detected — convert to image (TODO)")
+    # elif ext == ".dwg":
+    #     print("📐 DWG detected — convert to image (TODO)")
 
-    print("🚀 Detection completed.")
-    return {"status": "completed", "filename": filename}
+    # print("🚀 Detection completed.")
+    # return {"status": "completed", "filename": filename}
+    elif ext == ".dwf":
+            print("📐 DWF detected — converting to PDF first...")
+            pdf_path = convert_dwf_to_pdf(path)
+            if pdf_path and os.path.exists(pdf_path):
+                print("📄 Converting generated PDF to images...")
+                pdf_to_images(pdf_path)
+            else:
+                raise Exception("PDF conversion failed, no file found")
+
 
 
 @app.get("/load_model")

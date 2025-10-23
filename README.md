@@ -86,9 +86,4 @@ Automating symbol detection saves time, reduces errors, and improves the efficie
 3. Make your changes and add tests if possible  
 4. Submit a Pull Request  
 
-## 📄 License  
-MIT License  
-Copyright (c) 2025 Khizar Abbasi
 
-## 🙏 Acknowledgements  
-Thanks to all contributors, teammates, and open‑source libraries/frameworks that made this project possible.
