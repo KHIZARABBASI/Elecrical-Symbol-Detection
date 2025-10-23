@@ -21,7 +21,7 @@ OUTPUT_DIR = Path("outputs")
 UPLOAD_DIR.mkdir(exist_ok=True)
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-MODEL_PATH = r"E:\internship\JS\backend\model\best.pt"
+MODEL_PATH = r"C:\Users\Administrator\Desktop\react_app\Elecrical-Symbol-Detection\backend\model\best.pt"
 MODEL = YOLO(MODEL_PATH)
 
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
