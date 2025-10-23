@@ -8,6 +8,7 @@ import os
 import fitz  # PyMuPDF
 import shutil
 import traceback
+from dotenv import load_dotenv
 
 
 # ============================================================
@@ -25,6 +26,8 @@ MODEL = YOLO(MODEL_PATH)
 
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 app.mount("/outputs", StaticFiles(directory=str(OUTPUT_DIR)), name="outputs")
+
+load_dotenv()
 
 app.add_middleware(
     CORSMiddleware,
@@ -48,7 +51,7 @@ def convert_dwf_to_pdf(dwf_file_path: str) -> str:
     """Convert DWF to PDF using ConvertAPI."""
     try:
         import convertapi
-        convertapi.api_credentials = 'kBggW5Zoyhe5rr6azwlqnswDfIhoilOv'
+        convertapi.api_credentials = os.getenv("Convert_API_KEY")
         print(f"📐 Converting DWF file: {dwf_file_path}")
 
         dwf_file_path = os.path.abspath(dwf_file_path)
@@ -195,14 +198,15 @@ def load_model():
 
 @app.get("/results")
 async def get_results():
-    """Return detection results and images."""
+    """Return detection results and only YOLO inference images."""
     try:
         total_detections = 0
         detection_details = []
         preview_url = None
 
-        # All output images
-        all_images = sorted(list(OUTPUT_DIR.rglob("*.jpg")), key=os.path.getmtime)
+        # ✅ Only get images from YOLO inference folder (e.g., outputs/run/)
+        results_dir = OUTPUT_DIR / "run"
+        all_images = sorted(list(results_dir.rglob("*.jpg")), key=os.path.getmtime)
         total_pages = len(all_images)
 
         if all_images:
@@ -217,8 +221,8 @@ async def get_results():
         else:
             page_previews = []
 
-        # Parse YOLO label files
-        label_files = list(OUTPUT_DIR.rglob("labels/*.txt"))
+        # ✅ Parse YOLO label files only from outputs/run/labels/
+        label_files = list(results_dir.rglob("labels/*.txt"))
         for f in label_files:
             with open(f, "r") as lf:
                 lines = lf.read().strip().splitlines()
@@ -247,10 +251,16 @@ async def get_results():
             "pages": page_previews,
         }
 
-        return {"summary": summary, "detections": detection_details, "preview": preview_url, "pages": page_previews}
+        return {
+            "summary": summary,
+            "detections": detection_details,
+            "preview": preview_url,
+            "pages": page_previews
+        }
 
     except Exception as e:
         return {"error": str(e)}
+
 
 
 @app.get("/reset")
