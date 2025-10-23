@@ -24,14 +24,13 @@ export default function LandingPage() {
       {/* Hero Section */}
       <div className="hero-section">
         <h1>
-          Streamline Your <span className="text-red">Hiring Process</span>
+          Accelerate Your <span className="text-red">Engineering Workflow</span>
         </h1>
         <p className="hero-desc">
-          AI-powered resume screening for DPS Kuwait. Automatically analyze, score, and
-          rank candidates to find the perfect fit for your team faster than ever before.
+          Empowering DPS Kuwait with AI-driven electrical diagram analysis. Instantly detect and classify symbols to simplify design validation and reduce manual review time.
         </p>
         <button className="get-started-btn" onClick={() => setShowMainApp(true)}>
-          Start Screening Resumes →
+          Start Analysing
         </button>
       </div>
 
@@ -43,8 +42,8 @@ export default function LandingPage() {
             <img src="src\img\analysis.png" alt="DPS Kuwait" className="logo" />
 
           </div>
-          <h3>Smart Resume Analysis</h3>
-          <p>Upload job descriptions and let our AI analyze resumes against your specific requirements with detailed scoring and recommendations.</p>
+          <h3>Intelligent Symbol Detection</h3>
+          <p>Empower your design team with AI-driven symbol recognition. Instantly detect and classify electrical symbols in complex drawings — faster, smarter, and more accurately than ever before.</p>
         </div>
         
         <div className="feature-card">
@@ -53,8 +52,8 @@ export default function LandingPage() {
           <img src="src\img\manage.png" alt="DPS Kuwait" className="logo" />
 
           </div>
-          <h3>Candidate Management</h3>
-          <p>Organize and track candidates through different stages of your hiring process with comprehensive candidate profiles and notes.</p>
+          <h3>Seamless Drawing Management</h3>
+          <p>Effortlessly upload, view, and organize your engineering drawings in one unified workspace. Track detections, review pages, and manage projects with complete clarity and control.</p>
         </div>
 
         <div className="feature-card">
@@ -62,16 +61,16 @@ export default function LandingPage() {
             {/* <i className="pi pi-chart-bar"></i> */}
           <img src="src\img\insights.png" alt="DPS Kuwait" className="logo" />
           </div>
-          <h3>Analytics & Insights</h3>
-          <p>Get detailed analytics on your hiring process, track performance metrics and optimize your recruitment strategy with data-driven insights.</p>
+          <h3>Actionable Insights & Reports</h3>
+          <p> Turn data into decisions with detailed analytics on detections, symbol distributions, and accuracy trends — helping DPS Kuwait optimize workflows and improve design quality.</p>
         </div>
       </div>
 
       {/* CTA Section */}
       <div className="cta-section">
-        <h2>Ready to Transform Your Hiring?</h2>
-        <p>Join DPS Kuwait's HR team in revolutionizing the way we find and hire top talent.</p>
-        <button className="get-started-now-btn" onClick={() => setShowMainApp(true)}>
+        <h2>Ready to Automate Your Drawing Reviews?</h2>
+        <p> Join DPS Kuwait in revolutionizing the way electrical drawings are analyzed and reviewed with AI precision..</p>
+        <button className="get-started-btn" onClick={() => setShowMainApp(true)}>
           Get Started Now
         </button>
       </div>
@@ -83,7 +82,7 @@ export default function LandingPage() {
           <span>DPS Kuwait</span>
         </div>
         <div className="footer-text">
-          Digital Processing Systems Kuwait - HR Resume Screener
+          Digital Processing Systems Kuwait 
         </div>
       </footer>
     </div>
