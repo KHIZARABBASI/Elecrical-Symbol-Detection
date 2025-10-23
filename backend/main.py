@@ -116,6 +116,7 @@ def pdf_to_images(pdf_path: str):
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     """Upload and save file to uploads directory."""
+    print("📤 Uploading file...")
     global last_uploaded_file
 
     try:
