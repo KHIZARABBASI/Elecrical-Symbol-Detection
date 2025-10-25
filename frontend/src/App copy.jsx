@@ -4,6 +4,7 @@ import ProcessPipeline from './components/ProcessPipeline';
 import InferenceResult from './components/InferenceResult';
 import SummaryPanel from './components/SummaryPanel';
 import DetectionOverview from './components/DetectionOverview';
+
 import axios from 'axios';
 
 export default function App() {
@@ -76,7 +77,9 @@ export default function App() {
         <div className="header-left">
           <div className="brand">
             <div className="logo">
-              <i className="pi pi-sitemap" style={{ fontSize: 18, color: '#2f80ed' }}></i>
+              {/* <i className="pi pi-sitemap" style={{ fontSize: 18, color: '#2f80ed' }}></i> */}
+
+              <img src="src\img\dps_logo.png" alt="DPS Kuwait" className="logo"/>
             </div>
             <div>
               <div style={{ fontSize: 14, color: '#666' }}>DPS</div>
@@ -85,10 +88,10 @@ export default function App() {
           </div>
         </div>
 
-        <div className="header-right">
+        {/* <div className="header-right">
           <i className="pi pi-cog" style={{ fontSize: 18, marginRight: 8 }}></i>
           <i className="pi pi-user" style={{ fontSize: 18 }}></i>
-        </div>
+        </div> */}
       </div>
 
       {/* Main Grid */}
