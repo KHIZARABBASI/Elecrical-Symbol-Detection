@@ -11,6 +11,23 @@ import fitz, io
 from dotenv import load_dotenv
 
 
+# ============================================================
+# ⚙️ Setup
+# ============================================================
+app = FastAPI(title="Detection Backend", version="1.0")
+
+UPLOAD_DIR = Path("uploads")
+OUTPUT_DIR = Path("outputs")
+UPLOAD_DIR.mkdir(exist_ok=True)
+OUTPUT_DIR.mkdir(exist_ok=True)
+
+MODEL_PATH = r"E:\internship\JS\backend\model\best.pt"
+MODEL = YOLO(MODEL_PATH)
+
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
+app.mount("/outputs", StaticFiles(directory=str(OUTPUT_DIR)), name="outputs")
+
+# >>>>>>> 3bdf2d7725739821fa34873222ff1079a583c0dd
 load_dotenv()
 
 # convertapi.api_secret = os.getenv("Convert_API_KEY")
